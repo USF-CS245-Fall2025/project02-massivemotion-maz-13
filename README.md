@@ -144,4 +144,4 @@ java MassiveMotion MassiveMotion_dummyhead.txt
 - **Modular Design**: Clear separation of concerns between classes
 
 ## Author
-Mir Ali Zain - CS 245  - Fall 2025
+Mir Ali Zain

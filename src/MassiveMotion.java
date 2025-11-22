@@ -7,17 +7,12 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Random;
 
-/**
- * MassiveMotion simulation class that creates and animates celestial bodies.
- * Reads configuration from a properties file and maintains a list of celestial objects.
- */
 public class MassiveMotion extends JPanel implements ActionListener {
 
     private Timer timer;
     private List<CelestialBody> celestialBodies;
     private Random random;
     
-    // Configuration properties
     private int timerDelay;
     private int windowSizeX;
     private int windowSizeY;
@@ -31,25 +26,15 @@ public class MassiveMotion extends JPanel implements ActionListener {
     private int bodySize;
     private int bodyVelocity;
 
-    /**
-     * Constructs a new MassiveMotion simulation with the specified property file.
-     * @param propFile the path to the property file containing simulation configuration
-     */
     public MassiveMotion(String propFile) {
         this.random = new Random();
         loadProperties(propFile);
         initializeSimulation();
     }
     
-    /**
-     * Loads configuration properties from the specified file.
-     * Uses default values if the file cannot be read.
-     * @param propFile the path to the property file
-     */
     private void loadProperties(String propFile) {
         Properties props = new Properties();
         
-        // Set default values
         timerDelay = 75;
         windowSizeX = 1024;
         windowSizeY = 768;
@@ -66,7 +51,6 @@ public class MassiveMotion extends JPanel implements ActionListener {
         try (FileInputStream fis = new FileInputStream(propFile)) {
             props.load(fis);
             
-            // Load properties with defaults
             timerDelay = Integer.parseInt(props.getProperty("timer_delay", "75"));
             windowSizeX = Integer.parseInt(props.getProperty("window_size_x", "1024"));
             windowSizeY = Integer.parseInt(props.getProperty("window_size_y", "768"));
@@ -80,24 +64,18 @@ public class MassiveMotion extends JPanel implements ActionListener {
             bodySize = Integer.parseInt(props.getProperty("body_size", "10"));
             bodyVelocity = Integer.parseInt(props.getProperty("body_velocity", "3"));
             
-            // Create the appropriate list implementation
             String listType = props.getProperty("list", "arraylist");
             celestialBodies = ListFactory.createList(listType);
             
         } catch (IOException e) {
             System.err.println("Warning: Could not read property file, using default values");
-            // Use default list type
             celestialBodies = ListFactory.createList("arraylist");
         }
     }
     
-    /**
-     * Initializes the simulation by creating the timer and adding the initial star.
-     */
     private void initializeSimulation() {
         timer = new Timer(timerDelay, this);
         
-        // Create the initial star
         CelestialBody star = new CelestialBody(
             starPositionX, starPositionY, 
             starVelocityX, starVelocityY, 
@@ -106,14 +84,9 @@ public class MassiveMotion extends JPanel implements ActionListener {
         celestialBodies.add(star);
     }
 
-    /**
-     * Paints all celestial bodies on the canvas.
-     * @param g the Graphics object used for painting
-     */
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         
-        // Paint each celestial body
         for (int i = 0; i < celestialBodies.size(); i++) {
             CelestialBody body = celestialBodies.get(i);
             g.setColor(body.getColor());
@@ -121,27 +94,18 @@ public class MassiveMotion extends JPanel implements ActionListener {
             g.fillOval(body.getX() - body.getSize(), body.getY() - body.getSize(), diameter, diameter);
         }
         
-        // Start the timer if it's not already running
         if (!timer.isRunning()) {
             timer.start();
         }
     }
 
-
-    /**
-     * Updates the simulation state on each timer tick.
-     * Moves celestial bodies, generates new ones, and removes out-of-bounds bodies.
-     * @param actionEvent the action event from the timer
-     */
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
-        // Update positions of all celestial bodies
         for (int i = 0; i < celestialBodies.size(); i++) {
             CelestialBody body = celestialBodies.get(i);
             body.updatePosition();
         }
         
-        // Remove bodies that are out of bounds
         for (int i = celestialBodies.size() - 1; i >= 0; i--) {
             CelestialBody body = celestialBodies.get(i);
             if (body.isOutOfBounds(windowSizeX, windowSizeY)) {
@@ -149,19 +113,12 @@ public class MassiveMotion extends JPanel implements ActionListener {
             }
         }
         
-        // Generate new celestial bodies based on probability
         generateNewCelestialBodies();
         
-        // Repaint the canvas
         repaint();
     }
     
-    /**
-     * Generates new celestial bodies based on the generation probabilities.
-     * Bodies are generated at the edges of the canvas with random velocities.
-     */
     private void generateNewCelestialBodies() {
-        // Generate body from top or bottom edge
         if (random.nextDouble() < genX) {
             int x = random.nextInt(windowSizeX);
             int y = random.nextBoolean() ? -bodySize : windowSizeY + bodySize;
@@ -172,7 +129,6 @@ public class MassiveMotion extends JPanel implements ActionListener {
             celestialBodies.add(newBody);
         }
         
-        // Generate body from left or right edge
         if (random.nextDouble() < genY) {
             int x = random.nextBoolean() ? -bodySize : windowSizeX + bodySize;
             int y = random.nextInt(windowSizeY);
@@ -184,10 +140,6 @@ public class MassiveMotion extends JPanel implements ActionListener {
         }
     }
     
-    /**
-     * Generates a random velocity within the specified range, excluding zero.
-     * @return a random velocity between -bodyVelocity and +bodyVelocity, excluding 0
-     */
     private int generateRandomVelocity() {
         int velocity;
         do {
@@ -196,10 +148,6 @@ public class MassiveMotion extends JPanel implements ActionListener {
         return velocity;
     }
 
-    /**
-     * Main method to run the Massive Motion simulation.
-     * @param args command line arguments - first argument should be the property file path
-     */
     public static void main(String[] args) {
         System.out.println("Massive Motion starting...");
         
